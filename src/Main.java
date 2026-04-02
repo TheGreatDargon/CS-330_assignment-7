@@ -6,27 +6,29 @@ import java.io.File;
 public class Main {
     public static void main(String[] args) {
 
-        File codeFile = new File("./input.txt");
-        Scanner s = null;
+
+        Scanner input = new Scanner(System.in);
+        System.out.print("Please input your code file path: ");
+        String codeFilePath = input.nextLine();
+
+        File codeFile = new File(codeFilePath);
         try {
-            s = new Scanner(codeFile);
+            input = new Scanner(codeFile);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
 
-        int count = 1;
-        String code = "";
-        s.useDelimiter("");
-        while(s.hasNext()) {
-            code += s.next();
+        StringBuilder code = new StringBuilder();
+        input.useDelimiter("");
+        while(input.hasNext()) {
+            code.append(input.next());
         }
 
-        Lexer lexer = new Lexer(code);
+        Lexer lexer = new Lexer(code.toString());
         List<Token> tokens = lexer.tokenize();
 
         for (Token token : tokens) {
             System.out.println(token);
-            count++;
         }
 
     }
