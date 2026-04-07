@@ -1,3 +1,6 @@
+import tokenizer.Lexer;
+import tokenizer.Token;
+
 import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Scanner;
@@ -27,13 +30,9 @@ public class Main {
         Lexer lexer = new Lexer(code.toString());
         List<Token> tokens = lexer.tokenize();
 
-        Parser parser = new Parser(tokens);
-
-
-
         /* Print out tokens for debugging */
         /*
-        for (Token token : tokens) {
+        for (tokenizer.Token token : tokens) {
             System.out.println(token);
         }
         */

@@ -1,7 +1,7 @@
-package ast.program;
+package parser.ast.program;
 
-import ast.ASTNode;
-import ast.statement.StatementNode;
+import parser.ast.ASTNode;
+import parser.ast.statement.StatementNode;
 
 import java.util.List;
 

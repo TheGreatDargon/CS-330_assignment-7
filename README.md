@@ -1,4 +1,4 @@
-# Course Project - Phase 3 Syntax Analysis - Parser
+# Course Project - Phase 3 Syntax Analysis - parser.Parser
 
 For the next step of phase 3 Syntax Analysis, we will :
 

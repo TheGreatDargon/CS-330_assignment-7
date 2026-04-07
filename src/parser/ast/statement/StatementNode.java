@@ -1,6 +1,6 @@
-package ast.statement;
+package parser.ast.statement;
 
-import ast.ASTNode;
+import parser.ast.ASTNode;
 
 public class StatementNode extends ASTNode {
     @Override

@@ -1,5 +1,9 @@
+package parser;
+
 import java.util.List;
-import ast.expression.Expression;
+import parser.ast.expression.Expression;
+import tokenizer.Token;
+import tokenizer.TokenType;
 
 class Parser {
     private final List<Token> tokens;
@@ -14,7 +18,7 @@ class Parser {
     private Expression equality() {
         Expression expr = comparison();
 
-        while (match(TokenType.OP_EQUALS, EQUAL_EQUAL)) {
+        while (match(TokenType.OP_ASSIGN, TokenType.OP_EQUALS)) {
             Token operator = previous();
             Expression right = comparison();
             expr = new Expression.Binary(expr, operator, right);

@@ -1,3 +1,5 @@
+package tokenizer;
+
 public class Token {
     private TokenType type;
     private String value;
@@ -19,6 +21,6 @@ public class Token {
 
     @Override
     public String toString() {
-        return "Token: " + value + " Type: " + type + " " + "Number: " + number;
+        return "tokenizer.Token: " + value + " Type: " + type + " " + "Number: " + number;
     }
 }

@@ -1,3 +1,5 @@
+package tokenizer;
+
 public enum TokenType {
     // Add the tokens from token table here
     KW_POKEMON, KW_INT, KW_STRING, KW_BOOLEAN,
