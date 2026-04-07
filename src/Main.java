@@ -27,9 +27,17 @@ public class Main {
         Lexer lexer = new Lexer(code.toString());
         List<Token> tokens = lexer.tokenize();
 
+        Parser parser = new Parser(tokens);
+
+
+
+        /* Print out tokens for debugging */
+        /*
         for (Token token : tokens) {
             System.out.println(token);
         }
+        */
+
 
     }
 }
