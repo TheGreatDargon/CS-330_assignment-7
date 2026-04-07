@@ -8,11 +8,11 @@ Create a parser
 
 - Checks whether they follow the grammar
 
-- Builds an abstract syntax tree (AST) (or parse tree)
+- Builds an abstract syntax tree (expressions) (or parse tree)
 
 
 
-# AST goals
+# expressions goals
 - Abstract away syntax (no tokens, no parentheses, no semicolons)
 
 - Represent meaning, not grammar mechanics
@@ -28,7 +28,7 @@ Create a parser
     - extend
 
 # Structural conventions
-- One base ASTNode
+- One base expressions.ASTNode
 
 - Separate Statements and Expressions
 
