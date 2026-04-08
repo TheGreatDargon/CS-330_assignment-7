@@ -10,6 +10,7 @@ public class Lexer {
     private int currentPosition;
     private int number;
     private String value = "";
+    private Object literal = null;
     private TokenType type;
     private int start;
     private int end;
@@ -44,8 +45,9 @@ public class Lexer {
     }
 
     private Token nextToken() {
+
         if (currentPosition >= input.length()) {
-            return new Token(TokenType.EOF, "EOF", ++number);
+            return new Token(TokenType.EOF, "EOF", null, ++number);
         }
 
         String[] tokenPatterns = {
@@ -54,7 +56,14 @@ public class Lexer {
                 "int", // int keyword
                 "String", // String keyword
                 "boolean", // boolean keyword
-                "function|void|if|elseif|else|while|for|break|continue|return|print|show|spelldatabase|move1|move2|move3|move4|true|false", // Keywords
+                "function|void|elseif|else|break|continue|show|spelldatabase|move1|move2|move3|move4", // Keywords
+                "return",
+                "print",
+                "while",
+                "if",
+                "for",
+                "true",
+                "false",
                 "[a-zA-Z_]([a-zA-Z_]|[0-9])*", // Identifiers
                 "0|[1-9][0-9]*", // Int Literal
                 "\"[^\"]*\"", // String Literals
@@ -87,7 +96,8 @@ public class Lexer {
 
         TokenType[] tokenTypes = {
                 TokenType.KW_POKEMON, TokenType.KW_INT, TokenType.KW_STRING, TokenType.KW_BOOLEAN,
-                TokenType.KEYWORD, TokenType.IDENTIFIER,
+                TokenType.KW_FOR, TokenType.KW_IF, TokenType.KW_WHILE, TokenType.KW_PRINT, TokenType.KW_RETURN,
+                TokenType.KEYWORD, TokenType.IDENTIFIER, TokenType.OP_TRUE, TokenType.OP_FALSE,
                 TokenType.INT_LITERAL, TokenType.STRING_LITERAL,
                 TokenType.OP_ASSIGN, TokenType.OP_EQUALS, TokenType.OP_LESS_THAN, TokenType.OP_GREATER_THAN, TokenType.OP_LESS_THAN_EQUALS, TokenType.OP_GREATER_THAN_EQUALS,
                 TokenType.OP_PLUS_ASSIGN, TokenType.OP_MINUS_ASSIGN, TokenType.OP_PLUS, TokenType.OP_MINUS, TokenType.OP_MULTIPLY, TokenType.OP_DIVIDE, TokenType.OP_AND, TokenType.OP_OR, TokenType.OP_NOT, TokenType.OP_NOTEQUAL,
@@ -95,7 +105,7 @@ public class Lexer {
                 TokenType.SEMICOLON, TokenType.COMMA, TokenType.DOT, TokenType.WHITESPACE, TokenType.EOF
         };
 
-        while (currentPosition < input.length()) {
+        do {
             value = "";
             for (int i = 0; i < tokenPatterns.length; i++) {  // Flipped taking length of longest token and trying to match it to current position
                 Pattern pattern = Pattern.compile("^" + tokenPatterns[i]);
@@ -114,12 +124,8 @@ public class Lexer {
             }
             number++;
             currentPosition += value.length();
-            return new Token(type, value, number);
+            return new Token(type, value, null, number);
 
-        }
-
-
-
-        return null;
+        } while (true);
     }
 }

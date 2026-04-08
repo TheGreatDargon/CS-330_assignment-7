@@ -1,5 +1,12 @@
+package mainapp;
+
+import parser.AstPrinter;
+import parser.Expr;
+import parser.Parser;
 import tokenizer.Lexer;
 import tokenizer.Token;
+import tokenizer.TokenType;
+
 
 import java.io.FileNotFoundException;
 import java.util.List;
@@ -7,6 +14,8 @@ import java.util.Scanner;
 import java.io.File;
 
 public class Main {
+    static boolean hadError = false;
+
     public static void main(String[] args) {
 
 
@@ -30,13 +39,33 @@ public class Main {
         Lexer lexer = new Lexer(code.toString());
         List<Token> tokens = lexer.tokenize();
 
-        /* Print out tokens for debugging */
-        /*
+        //printTokens(tokens);
+
+        Parser parser = new Parser(tokens);
+        Expr expression = parser.parse();
+
+        if(hadError) return;
+
+        System.out.println(new AstPrinter().print(expression));
+
+    }
+
+    private static void report(int line, String where, String message) {
+        System.err.println("[line " + line + "] Error" + where + ": " + message);
+        hadError = true; // You'll need this boolean at the top of your class
+    }
+
+    public static void error(Token token, String message) {
+        if (token.getType() == TokenType.EOF) {
+            report(token.line, " at end", message);
+        } else {
+            report(token.line, " at '" + token.getValue() + "'", message);
+        }
+    }
+
+    private static void printTokens(List<Token> tokens) {
         for (tokenizer.Token token : tokens) {
             System.out.println(token);
         }
-        */
-
-
     }
 }

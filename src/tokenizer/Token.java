@@ -1,14 +1,16 @@
 package tokenizer;
 
 public class Token {
-    private TokenType type;
-    private String value;
-    private int number;
+    public TokenType type;
+    public String value;
+    public Object literal;
+    public int line;
 
-    public Token(TokenType type, String value, int number) {
+    public Token(TokenType type, String value, Object literal, int number) {
         this.type = type;
         this.value = value;
-        this.number = number;
+        this.literal = literal;
+        this.line = number;
     }
 
     public TokenType getType() {
@@ -21,6 +23,6 @@ public class Token {
 
     @Override
     public String toString() {
-        return "tokenizer.Token: " + value + " Type: " + type + " " + "Number: " + number;
+        return "tokenizer.Token: " + value + " Type: " + type + " " + "Number: " + line;
     }
 }

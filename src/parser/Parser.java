@@ -1,27 +1,40 @@
 package parser;
 
-import java.util.List;
-import parser.ast.expression.Expression;
 import tokenizer.Token;
 import tokenizer.TokenType;
+import mainapp.Main;
 
-class Parser {
+
+import java.util.List;
+
+import tokenizer.TokenType;
+
+public class Parser {
+    private static class ParseError extends RuntimeException {}
     private final List<Token> tokens;
     private int current = 0;
 
-    Parser(List<Token> tokens) {
+    public Parser(List<Token> tokens) {
         this.tokens = tokens;
     }
-    private Expression expression() {
+    public Expr parse() {
+        try {
+            return expression();
+        } catch (ParseError error) {
+            return null;
+        }
+    }
+
+    private Expr expression() {
         return equality();
     }
-    private Expression equality() {
-        Expression expr = comparison();
+    private Expr equality() {
+        Expr expr = comparison();
 
-        while (match(TokenType.OP_ASSIGN, TokenType.OP_EQUALS)) {
+        while (match(TokenType.OP_PLUS_ASSIGN, TokenType.OP_EQUALS)) {
             Token operator = previous();
-            Expression right = comparison();
-            expr = new Expression.Binary(expr, operator, right);
+            Expr right = comparison();
+            expr = new Expr.Binary(expr, operator, right);
         }
 
         return expr;
@@ -36,6 +49,13 @@ class Parser {
 
         return false;
     }
+
+    private Token consume(TokenType type, String message) {
+        if (check(type)) return advance();
+
+        throw error(peek(), message);
+    }
+
     private boolean check(TokenType type) {
         if (isAtEnd()) return false;
         return peek().getType() == type;
@@ -45,61 +65,100 @@ class Parser {
         return previous();
     }
     private boolean isAtEnd() {
-        return peek().getType().equals("EOF");
+        return peek().getType() == TokenType.EOF;
     }
+
     private Token peek() {
+        if (current >= tokens.size()) return tokens.get(tokens.size() - 1);
         return tokens.get(current);
     }
+
     private Token previous() {
         return tokens.get(current - 1);
     }
 
-    private Expression comparison() {
-        Expression expr = term();
+    private ParseError error(Token token, String message) {
+        Main.error(token, message);
+        return new ParseError();
+    }
+    private void synchronize() {
+        advance();
 
-        while (match(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL)) {
+        while (!isAtEnd()) {
+            if (previous().getType() == TokenType.SEMICOLON) return;
+
+            switch (peek().getType()) {
+                case TokenType.IDENTIFIER:
+                case TokenType.KW_FOR:
+                case TokenType.KW_IF:
+                case TokenType.KW_WHILE:
+                case TokenType.KW_PRINT:
+                case TokenType.KW_RETURN:
+                    return;
+            }
+
+            advance();
+        }
+    }
+    private Expr comparison() {
+        Expr expr = term();
+
+        while (match(TokenType.OP_GREATER_THAN, TokenType.OP_GREATER_THAN_EQUALS, TokenType.OP_LESS_THAN, TokenType.OP_LESS_THAN_EQUALS)) {
             Token operator = previous();
-            Expression right = term();
-            expr = new Expression.Binary(expr, operator, right);
+            Expr right = term();
+            expr = new Expr.Binary(expr, operator, right);
         }
 
         return expr;
     }
-    private Expression term() {
-        Expression expr = factor();
+    private Expr term() {
+        Expr expr = factor();
 
-        while (match(MINUS, PLUS)) {
+        while (match(TokenType.OP_MINUS, TokenType.OP_PLUS)) {
             Token operator = previous();
-            Expression right = factor();
-            expr = new Expression.Binary(expr, operator, right);
+            Expr right = factor();
+            expr = new Expr.Binary(expr, operator, right);
         }
 
         return expr;
     }
-    private Expression factor() {
-        Expression expr = unary();
+    private Expr factor() {
+        Expr expr = unary();
 
-        while (match(SLASH, STAR)) {
+        while (match(TokenType.OP_DIVIDE, TokenType.OP_MULTIPLY)) {
             Token operator = previous();
-            Expression right = unary();
-            expr = new Expression.Binary(expr, operator, right);
+            Expr right = unary();
+            expr = new Expr.Binary(expr, operator, right);
         }
 
         return expr;
     }
-    private Expression primary() {
-        if (match(FALSE)) return new Expression.Literal(false);
-        if (match(TRUE)) return new Expression.Literal(true);
-        if (match(NIL)) return new Expression.Literal(null);
-
-        if (match(NUMBER, STRING)) {
-            return new Expression.Literal(previous().literal);
+    private Expr unary() {
+        if (match(TokenType.OP_PLUS, TokenType.OP_MINUS)) {
+            Token operator = previous();
+            Expr right = unary();
+            return new Expr.Unary(operator, right);
         }
 
-        if (match(LEFT_PAREN)) {
-            Expression expr = expression();
-            consume(RIGHT_PAREN, "Expect ')' after expression.");
-            return new Expression.Grouping(expr);
-        }
+        return primary();
     }
+    private Expr primary() {
+        if (match(TokenType.OP_FALSE)) return new Expr.Literal(false);
+        if (match(TokenType.OP_TRUE)) return new Expr.Literal(true);
+
+        if (match(TokenType.INT_LITERAL)) {
+            int value = Integer.parseInt(previous().value);
+            return new Expr.Literal(value);
+        }
+
+        if (match(TokenType.LPAREN)) {
+            Expr expr = expression();
+            consume(TokenType.RPAREN, "Expect ')' after expression.");
+            return new Expr.Grouping(expr);
+        }
+
+        throw error(peek(), "Expect expression.");
+    }
+
+
 }
