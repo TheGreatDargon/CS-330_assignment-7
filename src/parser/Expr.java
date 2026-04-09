@@ -37,18 +37,6 @@ public abstract class Expr {
             return visitor.visitStatementExpr(this);
         }
     }
-    static class StatementTail extends Statement {
-        List<Statement> statementList = new ArrayList<>();
-
-        public StatementTail(List<Statement> statementList){
-            this.statementList = statementList;
-        }
-
-        @Override
-        <R> R accept(Visitor<R> visitor) {
-            return visitor.visitStatementTailExpr(this);
-        }
-    }
     static class Literal extends Expr {
         public Object value;
 
@@ -68,32 +56,16 @@ public abstract class Expr {
             return visitor.visitExpressionExpr(this);
         }
     }
-    static class Identifier extends Expression {
-        public String name;
-        public Object value;
+    static class StatementTail extends Statement {
+        List<Statement> statementList = new ArrayList<>();
 
-        public Identifier(String name, Object value) {
-            this.name = name;
-            this.value = value;
+        public StatementTail(List<Statement> statementList){
+            this.statementList = statementList;
         }
 
         @Override
         <R> R accept(Visitor<R> visitor) {
-            return visitor.visitIdentifierExpr(this);
-        }
-    }
-    static class Attribute extends Expression {
-        Attribute(String base, String attribute){
-            this.base = base;
-            this.attribute = attribute;
-        }
-
-        final String base;
-        final String attribute;
-
-        @Override
-        <R> R accept(Visitor<R> visitor) {
-            return visitor.visitAttributeExpr(this);
+            return visitor.visitStatementTailExpr(this);
         }
     }
     static class Block extends Statement {
@@ -142,5 +114,32 @@ public abstract class Expr {
             return visitor.visitVariableDeclarationExpr(this);
         }
     }
+    static class Identifier extends Expression {
+        public String name;
+        public Object value;
 
+        public Identifier(String name, Object value) {
+            this.name = name;
+            this.value = value;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitIdentifierExpr(this);
+        }
+    }
+    static class Attribute extends Expression {
+        Attribute(String base, String attribute){
+            this.base = base;
+            this.attribute = attribute;
+        }
+
+        final String base;
+        final String attribute;
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitAttributeExpr(this);
+        }
+    }
 }
