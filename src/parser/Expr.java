@@ -1,10 +1,13 @@
 package parser;
 import tokenizer.Token;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class Expr {
     interface Visitor<R> {
-        R visitBinaryExpr(Binary expr);
-        R visitGroupingExpr(Grouping expr);
+        R visitProgramExpr(Program expr);
+        R visitStatementExpr(Statement expr);
         R visitLiteralExpr(Literal expr);
         R visitUnaryExpr(Unary expr);
         R visitVariableExpr(Variable expr);
@@ -14,33 +17,23 @@ public abstract class Expr {
     }
     abstract <R> R accept(Visitor<R> visitor);
 
-    static class Binary extends Expr {
+    static class Program extends Expr {
+        List<Statement> statementList = new ArrayList<>();
 
-        Binary(Expr left, Token operator, Expr right) {
-            this.left = left;
-            this.operator = operator;
-            this.right = right;
+        public Program(List<Statement> statementList){
+            this.statementList = statementList;
         }
-
-        final Expr left;
-        final Token operator;
-        final Expr right;
         @Override
         <R> R accept(Visitor<R> visitor) {
-            return visitor.visitBinaryExpr(this);
+            return visitor.visitProgramExpr(this);
         }
 
     }
-    static class Grouping extends Expr {
-        public Expr expression;
-
-        Grouping(Expr expression) {
-            this.expression = expression;
-        }
+    static class Statement extends Expr {
 
         @Override
         <R> R accept(Visitor<R> visitor) {
-            return visitor.visitGroupingExpr(this);
+            return visitor.visitStatementExpr(this);
         }
     }
     static class Literal extends Expr {
@@ -55,63 +48,72 @@ public abstract class Expr {
             return visitor.visitLiteralExpr(this);
         }
     }
-    static class Unary extends Expr {
-        Unary(Token operator, Expr right) {
-            this.operator = operator;
-            this.right = right;
-        }
-        final Token operator;
-        final Expr right;
+    static class Expression extends Expr {
 
         @Override
         <R> R accept(Visitor<R> visitor) {
             return visitor.visitUnaryExpr(this);
         }
     }
-    static class Variable extends Expr {
-        Variable(Expr left, Token operator, Expr right) {
-            this.left = left;
-            this.operator = operator;
-            this.right = right;
+    static class Attribute extends Expression {
+        Attribute(String base, String attribute){
+            this.base = base;
+            this.attribute = attribute;
         }
 
-        final Expr left;
-        final Token operator;
-        final Expr right;
+        final String base;
+        final String attribute;
+
         @Override
         <R> R accept(Visitor<R> visitor) {
             return visitor.visitVariableExpr(this);
         }
     }
-    static class Get extends Expr {
-        Get(Expr left, Token operator, Expr right) {
-            this.left = left;
-            this.operator = operator;
-            this.right = right;
+    static class Block extends Statement {
+        List<Statement> statementList = new ArrayList<>();
+
+        public Block(List<Statement> statementList){
+            this.statementList = statementList;
         }
 
-        final Expr left;
-        final Token operator;
-        final Expr right;
         @Override
         <R> R accept(Visitor<R> visitor) {
             return visitor.visitGetExpr(this);
         }
     }
-    static class Call extends Expr {
-        Call(Expr left, Token operator, Expr right) {
-            this.left = left;
-            this.operator = operator;
-            this.right = right;
-        }
+    static class IfStatement extends Statement {
+        Expression condition = new Expression();
+        List<Expression> elseifConditions = new ArrayList<>();
+        List<Block> elseifBlocks = new ArrayList<>();
+        List<Statement> statementList = new ArrayList<>();
+        Block thenBlock = new Block(statementList);
 
-        final Expr left;
-        final Token operator;
-        final Expr right;
+        public IfStatement(Expression condition, List<Expression> elseifConditions, List<Block> elseifBlocks, List<Statement> statementList, Block thenBlock) {
+            this.condition = condition;
+            this.elseifConditions = elseifConditions;
+            this.elseifBlocks = elseifBlocks;
+            this.statementList = statementList;
+            this.thenBlock = thenBlock;
+        }
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitGetExpr(this);
+        }
+    }
+
+    static class VariableDeclaration extends Statement {
+        final String type;
+        final String name;
+        Expression value = new Expression();
+    }
+    static class Call extends Expr {
+
         @Override
         <R> R accept(Visitor<R> visitor) {
             return visitor.visitCallExpr(this);
         }
     }
+
+    static class
 
 }
