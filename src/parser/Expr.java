@@ -8,12 +8,14 @@ public abstract class Expr {
     interface Visitor<R> {
         R visitProgramExpr(Program expr);
         R visitStatementExpr(Statement expr);
+        R visitStatementTailExpr(StatementTail expr);
         R visitLiteralExpr(Literal expr);
-        R visitUnaryExpr(Unary expr);
-        R visitVariableExpr(Variable expr);
-        R visitGetExpr(Get expr);
-        R visitCallExpr(Call expr);
-        // Add more as you create them, like visitGetExpr for your Pokemon fields
+        R visitExpressionExpr(Expression expr);
+        R visitAttributeExpr(Attribute expr);
+        R visitBlockExpr(Block expr);
+        R visitIfStatementExpr(IfStatement expr);
+        R visitVariableDeclarationExpr(VariableDeclaration expr);
+        R visitIdentifierExpr(Identifier expr);
     }
     abstract <R> R accept(Visitor<R> visitor);
 
@@ -36,6 +38,18 @@ public abstract class Expr {
             return visitor.visitStatementExpr(this);
         }
     }
+    static class StatementTail extends Statement {
+        List<Statement> statementList = new ArrayList<>();
+
+        public StatementTail(List<Statement> statementList){
+            this.statementList = statementList;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitStatementTailExpr(this);
+        }
+    }
     static class Literal extends Expr {
         public Object value;
 
@@ -52,7 +66,21 @@ public abstract class Expr {
 
         @Override
         <R> R accept(Visitor<R> visitor) {
-            return visitor.visitUnaryExpr(this);
+            return visitor.visitExpressionExpr(this);
+        }
+    }
+    static class Identifier extends Expression {
+        public String name;
+        public Object value;
+
+        public Identifier(String name, Object value) {
+            this.name = name;
+            this.value = value;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitIdentifierExpr(this);
         }
     }
     static class Attribute extends Expression {
@@ -66,7 +94,7 @@ public abstract class Expr {
 
         @Override
         <R> R accept(Visitor<R> visitor) {
-            return visitor.visitVariableExpr(this);
+            return visitor.visitAttributeExpr(this);
         }
     }
     static class Block extends Statement {
@@ -78,7 +106,7 @@ public abstract class Expr {
 
         @Override
         <R> R accept(Visitor<R> visitor) {
-            return visitor.visitGetExpr(this);
+            return visitor.visitBlockExpr(this);
         }
     }
     static class IfStatement extends Statement {
@@ -97,23 +125,23 @@ public abstract class Expr {
         }
         @Override
         <R> R accept(Visitor<R> visitor) {
-            return visitor.visitGetExpr(this);
+            return visitor.visitIfStatementExpr(this);
         }
     }
-
     static class VariableDeclaration extends Statement {
         final String type;
         final String name;
         Expression value = new Expression();
-    }
-    static class Call extends Expr {
 
+        public VariableDeclaration(String type, String name, Expression value) {
+            this.type = type;
+            this.name = name;
+            this.value = value;
+        }
         @Override
         <R> R accept(Visitor<R> visitor) {
-            return visitor.visitCallExpr(this);
+            return visitor.visitVariableDeclarationExpr(this);
         }
     }
-
-    static class
 
 }
