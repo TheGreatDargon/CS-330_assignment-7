@@ -1,5 +1,4 @@
 package parser;
-import tokenizer.Token;
 
 import java.util.ArrayList;
 import java.util.List;
