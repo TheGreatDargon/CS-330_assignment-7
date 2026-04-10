@@ -7,8 +7,6 @@ import mainapp.Main;
 
 import java.util.List;
 
-import tokenizer.TokenType;
-
 public class Parser {
     private static class ParseError extends RuntimeException {}
     private final List<Token> tokens;
@@ -17,7 +15,7 @@ public class Parser {
     public Parser(List<Token> tokens) {
         this.tokens = tokens;
     }
-    public Expr parse() {
+    public Ast parse() {
         try {
             return expression();
         } catch (ParseError error) {
@@ -25,19 +23,19 @@ public class Parser {
         }
     }
 
-    private Expr expression() {
+    private Ast expression() {
         return equality();
     }
-    private Expr equality() {
-        Expr expr = comparison();
+    private Ast equality() {
+        Ast ast = comparison();
 
         while (match(TokenType.OP_PLUS_ASSIGN, TokenType.OP_EQUALS)) {
             Token operator = previous();
-            Expr right = comparison();
-            expr = new Expr.Binary(expr, operator, right);
+            Ast right = comparison();
+            ast = new Ast.Binary(ast, operator, right);
         }
 
-        return expr;
+        return ast;
     }
     private boolean match(TokenType... types) {
         for (TokenType type : types) {
@@ -100,61 +98,61 @@ public class Parser {
             advance();
         }
     }
-    private Expr comparison() {
-        Expr expr = term();
+    private Ast comparison() {
+        Ast ast = term();
 
         while (match(TokenType.OP_GREATER_THAN, TokenType.OP_GREATER_THAN_EQUALS, TokenType.OP_LESS_THAN, TokenType.OP_LESS_THAN_EQUALS)) {
             Token operator = previous();
-            Expr right = term();
-            expr = new Expr.Binary(expr, operator, right);
+            Ast right = term();
+            ast = new Ast.Binary(ast, operator, right);
         }
 
-        return expr;
+        return ast;
     }
-    private Expr term() {
-        Expr expr = factor();
+    private Ast term() {
+        Ast ast = factor();
 
         while (match(TokenType.OP_MINUS, TokenType.OP_PLUS)) {
             Token operator = previous();
-            Expr right = factor();
-            expr = new Expr.Binary(expr, operator, right);
+            Ast right = factor();
+            ast = new Ast.Binary(ast, operator, right);
         }
 
-        return expr;
+        return ast;
     }
-    private Expr factor() {
-        Expr expr = unary();
+    private Ast factor() {
+        Ast ast = unary();
 
         while (match(TokenType.OP_DIVIDE, TokenType.OP_MULTIPLY)) {
             Token operator = previous();
-            Expr right = unary();
-            expr = new Expr.Binary(expr, operator, right);
+            Ast right = unary();
+            ast = new Ast.Binary(ast, operator, right);
         }
 
-        return expr;
+        return ast;
     }
-    private Expr unary() {
+    private Ast unary() {
         if (match(TokenType.OP_PLUS, TokenType.OP_MINUS)) {
             Token operator = previous();
-            Expr right = unary();
-            return new Expr.Unary(operator, right);
+            Ast right = unary();
+            return new Ast.Unary(operator, right);
         }
 
         return primary();
     }
-    private Expr primary() {
-        if (match(TokenType.OP_FALSE)) return new Expr.Literal(false);
-        if (match(TokenType.OP_TRUE)) return new Expr.Literal(true);
+    private Ast primary() {
+        if (match(TokenType.OP_FALSE)) return new Ast.Literal(false);
+        if (match(TokenType.OP_TRUE)) return new Ast.Literal(true);
 
         if (match(TokenType.INT_LITERAL)) {
             int value = Integer.parseInt(previous().value);
-            return new Expr.Literal(value);
+            return new Ast.Literal(value);
         }
 
         if (match(TokenType.LPAREN)) {
-            Expr expr = expression();
+            Ast ast = expression();
             consume(TokenType.RPAREN, "Expect ')' after expression.");
-            return new Expr.Grouping(expr);
+            return new Ast.Grouping(ast);
         }
 
         throw error(peek(), "Expect expression.");

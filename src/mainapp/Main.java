@@ -1,7 +1,7 @@
 package mainapp;
 
 import parser.AstPrinter;
-import parser.Expr;
+import parser.Ast;
 import parser.Parser;
 import tokenizer.Lexer;
 import tokenizer.Token;
@@ -42,7 +42,7 @@ public class Main {
         //printTokens(tokens);
 
         Parser parser = new Parser(tokens);
-        Expr expression = parser.parse();
+        Ast expression = parser.parse();
 
         if(hadError) return;
 

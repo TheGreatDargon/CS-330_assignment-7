@@ -1,63 +1,63 @@
 package parser;
 import tokenizer.Token;
 import tokenizer.TokenType;
-public class AstPrinter implements Expr.Visitor<String> {
-    public String print(Expr expr) {
-        return expr.accept(this);
+public class AstPrinter implements Ast.Visitor<String> {
+    public String print(Ast ast) {
+        return ast.accept(this);
     }
     @Override
-    public String visitBinaryExpr(Expr.Binary expr) {
+    public String visitBinaryExpr(Ast.Binary expr) {
         return parenthesize(expr.operator.getValue(),
                 expr.left, expr.right);
     }
 
     @Override
-    public String visitGroupingExpr(Expr.Grouping expr) {
+    public String visitGroupingExpr(Ast.Grouping expr) {
         return parenthesize("group", expr.expression);
     }
 
     @Override
-    public String visitLiteralExpr(Expr.Literal expr) {
+    public String visitLiteralExpr(Ast.Literal expr) {
         if (expr.value == null) return "nil";
         return String.valueOf(expr.value);
     }
 
     @Override
-    public String visitUnaryExpr(Expr.Unary expr) {
+    public String visitUnaryExpr(Ast.Unary expr) {
         return parenthesize(expr.operator.getValue(), expr.right);
     }
     @Override
-    public String visitVariableExpr(Expr.Variable expr) {
+    public String visitVariableExpr(Ast.Variable expr) {
         return parenthesize(expr.operator.getValue(), expr.right);
     }
     @Override
-    public String visitGetExpr(Expr.Get expr) {
+    public String visitGetExpr(Ast.Get expr) {
         return parenthesize(expr.operator.getValue(), expr.right);
     }
     @Override
-    public String visitCallExpr(Expr.Call expr) {
+    public String visitCallExpr(Ast.Call expr) {
         return parenthesize(expr.operator.getValue(), expr.right);
     }
-    private String parenthesize(String name, Expr... exprs) {
+    private String parenthesize(String name, Ast... asts) {
         StringBuilder builder = new StringBuilder();
 
         builder.append("(").append(name);
-        for (Expr expr : exprs) {
+        for (Ast ast : asts) {
             builder.append(" ");
-            builder.append(expr.accept(this));
+            builder.append(ast.accept(this));
         }
         builder.append(")");
 
         return builder.toString();
     }
     public static void main(String[] args) {
-        Expr expression = new Expr.Binary(
-                new Expr.Unary(
+        Ast expression = new Ast.Binary(
+                new Ast.Unary(
                         new Token(TokenType.OP_MINUS, "-", null, 1),
-                        new Expr.Literal(123)),
+                        new Ast.Literal(123)),
                 new Token(TokenType.OP_MULTIPLY, "*", null, 1),
-                new Expr.Grouping(
-                        new Expr.Literal(45.67)));
+                new Ast.Grouping(
+                        new Ast.Literal(45.67)));
 
         System.out.println(new AstPrinter().print(expression));
     }
