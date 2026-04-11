@@ -17,6 +17,11 @@ public abstract class Ast {
         R visitIfStatementExpr(IfStatement expr);
         R visitPokemonLoad(PokemonLoad expr);
         R visitMoveStatement(MoveStatement expr);
+        R visitWhileStatement(WhileStatement expr);
+        R visitForStatement(ForStatement expr);
+        R visitPrintStatement(PrintStatement expr);
+        R visitBreakStatement(BreakStatement expr);
+        R visitReturnStatement(ReturnStatement expr);
         // Expression
         R visitExpressionExpr(Expression expr);
         R visitBinary(Binary expr);
@@ -167,6 +172,65 @@ public abstract class Ast {
             return visitor.visitMoveStatement(this);
         }
 
+    }
+
+    static class WhileStatement extends Statement {
+        final Expression condition;
+        final Block body;
+
+        public WhileStatement(Expression condition, Block body) {
+            this.condition = condition;
+            this.body = body;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitWhileStatement(this);
+        }
+    }
+
+    static class ForStatement extends Statement {
+        final VariableDeclaration initialize;
+        final Expression condition;
+        final Token updateVariable;
+        final Block body;
+
+        public ForStatement(VariableDeclaration initialize, Expression condition, Token updateVariable, Block body) {
+            this.initialize = initialize;
+            this.condition = condition;
+            this.updateVariable = updateVariable;
+            this.body = body;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitForStatement(this);
+        }
+    }
+
+    static class PrintStatement extends Statement {
+        final Expression expression;
+        public PrintStatement(Expression expression){
+            this.expression = expression;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitPrintStatement(this);
+        }
+    }
+
+    static class BreakStatement extends Statement {
+        @Override
+        <R> R accept(Visitor<R> visitor) { return visitor.visitBreakStatement(this); }
+    }
+
+    static class ReturnStatement extends Statement {
+        final Expression value;
+        public ReturnStatement(Expression value) { this.value = value; }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) { return visitor.visitReturnStatement(this); }
     }
 
     /*
