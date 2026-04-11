@@ -21,7 +21,11 @@ public abstract class Ast {
         R visitForStatement(ForStatement expr);
         R visitPrintStatement(PrintStatement expr);
         R visitBreakStatement(BreakStatement expr);
+        R visitContinueStatement(ContinueStatement expr);
         R visitReturnStatement(ReturnStatement expr);
+        R visitSpellDatabaseStatement(SpellDatabaseStatement expr);
+        R visitShowStatement(ShowStatement expr);
+        R visitFunctionDeclaration(FunctionDeclaration expr);
         // Expression
         R visitExpressionExpr(Expression expr);
         R visitBinary(Binary expr);
@@ -29,6 +33,7 @@ public abstract class Ast {
         R visitLiteralExpr(Literal expr);
         R visitIdentifierExpr(Identifier expr);
         R visitAttributeExpr(Attribute expr);
+        R visitCall(Call expr);
     }
     abstract <R> R accept(Visitor<R> visitor);
 
@@ -122,11 +127,11 @@ public abstract class Ast {
     }
 
     static class IfStatement extends Statement {
-        Expression condition = new Expression();
-        List<Expression> elseifConditions = new ArrayList<>();
-        List<Block> elseifBlocks = new ArrayList<>();
-        List<Statement> statementList = new ArrayList<>();
-        Block thenBlock = new Block(statementList);
+        final Expression condition;
+        final List<Expression> elseifConditions;
+        final List<Block> elseifBlocks;
+        final List<Statement> statementList;
+        final Block thenBlock;
 
         public IfStatement(Expression condition, List<Expression> elseifConditions, List<Block> elseifBlocks, List<Statement> statementList, Block thenBlock) {
             this.condition = condition;
@@ -225,12 +230,69 @@ public abstract class Ast {
         <R> R accept(Visitor<R> visitor) { return visitor.visitBreakStatement(this); }
     }
 
+    static class ContinueStatement extends Statement {
+        @Override
+        <R> R accept(Visitor<R> visitor) { return visitor.visitContinueStatement(this); }
+    }
+
     static class ReturnStatement extends Statement {
         final Expression value;
         public ReturnStatement(Expression value) { this.value = value; }
 
         @Override
         <R> R accept(Visitor<R> visitor) { return visitor.visitReturnStatement(this); }
+    }
+
+    static class SpellDatabaseStatement extends Statement {
+        final Literal literal;
+
+        public SpellDatabaseStatement(Literal literal) {
+            this.literal = literal;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) { return visitor.visitSpellDatabaseStatement(this); }
+    }
+
+    static class ShowStatement extends Statement {
+        final Identifier identifier;
+
+        public ShowStatement(Identifier identifier) {
+            this.identifier = identifier;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitShowStatement(this);
+        }
+    }
+
+    static class FunctionDeclaration extends Statement {
+        final String returnType;
+        final String name;
+        final List<Parameter> parameters;
+        final Block body;
+
+        public FunctionDeclaration(String returnType, String name, List<Parameter> parameters, Block body){
+            this.returnType = returnType;
+            this.name = name;
+            this.parameters = parameters;
+            this.body = body;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitFunctionDeclaration(this);
+        }
+    }
+
+    static class Parameter {
+        final String type;
+        final String name;
+        public Parameter(String type, String name) {
+            this.type = type;
+            this.name = name;
+        }
     }
 
     /*
@@ -316,6 +378,19 @@ public abstract class Ast {
         @Override
         <R> R accept(Visitor<R> visitor) {
             return visitor.visitAttributeExpr(this);
+        }
+    }
+
+    static class Call extends Expression {
+        final String callee;
+        final List<Expression> arguments;
+        public Call(String callee, List<Expression> arguments){
+            this.callee = callee;
+            this.arguments = arguments;
+        }
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitCall(this);
         }
     }
 }
