@@ -3,8 +3,10 @@ package parser;
 import tokenizer.Token;
 import tokenizer.TokenType;
 import mainapp.Main;
+import parser.Parser;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Parser {
@@ -17,10 +19,41 @@ public class Parser {
     }
     public Ast parse() {
         try {
-            return expression();
+            return program();
         } catch (ParseError error) {
             return null;
         }
+    }
+    private Ast program() {
+        List<Ast.Statement> statementList = new ArrayList<>();
+
+        while(!isAtEnd()) {
+            statementList.add(statement());
+        }
+
+        return new Ast.Program(statementList);
+    }
+
+    private Ast.Statement statement() {
+        if(match(TokenType.KW_IF)) {return ifStatement();}
+        if(match(TokenType.KW_WHILE)) {return whileStatement();}
+        if(match(TokenType.KW_FOR)) {return forStatement();}
+        if(match(TokenType.KW_BREAK)) {consume(TokenType.SEMICOLON, "..."); return breakStatement();}
+        if(match(TokenType.KW_CONTINUE)) {consume(TokenType.SEMICOLON, "..."); return continueStatement();}
+        if(match(TokenType.KW_PRINT)) {return printStatement();}
+        if(match(TokenType.KW_SHOW)) {return showStatement();}
+        if(match(TokenType.KW_SPELLDATABASE)) {return spellDatabaseStatement();}
+        if(match(TokenType.KW_RETURN)) {return returnStatement();}
+
+        if(match(TokenType.KW_INT, TokenType.KW_INT, TokenType.KW_STRING, TokenType.KW_POKEMON)) {
+            return variableDeclaration(previous().value);
+        }
+
+        if(match(TokenType.LBRACE)) {return blockStatement();}
+
+        if(match(TokenType.IDENTIFIER)) {return identifierStatement();}
+
+        throw error(peek(), "Expect statement.");
     }
 
     private Ast expression() {
