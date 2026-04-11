@@ -129,16 +129,16 @@ public abstract class Ast {
     static class IfStatement extends Statement {
         final Expression condition;
         final List<Expression> elseifConditions;
+        final Block ifBlock;
         final List<Block> elseifBlocks;
-        final List<Statement> statementList;
-        final Block thenBlock;
+        final Block elseBlock;
 
-        public IfStatement(Expression condition, List<Expression> elseifConditions, List<Block> elseifBlocks, List<Statement> statementList, Block thenBlock) {
+        public IfStatement(Expression condition, List<Expression> elseifConditions, Block ifBlock, List<Block> elseifBlocks, Block elseBlock) {
             this.condition = condition;
             this.elseifConditions = elseifConditions;
+            this.ifBlock = ifBlock;
             this.elseifBlocks = elseifBlocks;
-            this.statementList = statementList;
-            this.thenBlock = thenBlock;
+            this.elseBlock = elseBlock;
         }
         @Override
         <R> R accept(Visitor<R> visitor) {
