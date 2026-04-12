@@ -56,7 +56,18 @@ public class Lexer {
                 "int", // int keyword
                 "String", // String keyword
                 "boolean", // boolean keyword
-                "function|void|elseif|else|break|continue|show|spelldatabase|move1|move2|move3|move4", // Keywords
+                "function",
+                "void",
+                "elseif",
+                "else",
+                "show",
+                "spelldatabase",
+                "move1",
+                "move2",
+                "move3",
+                "move4",
+                "continue",
+                "break",
                 "return",
                 "print",
                 "while",
@@ -97,6 +108,9 @@ public class Lexer {
         TokenType[] tokenTypes = {
                 TokenType.KW_POKEMON, TokenType.KW_INT, TokenType.KW_STRING, TokenType.KW_BOOLEAN,
                 TokenType.KW_FOR, TokenType.KW_IF, TokenType.KW_WHILE, TokenType.KW_PRINT, TokenType.KW_RETURN,
+                TokenType.KW_FUNCTION, TokenType.KW_VOID, TokenType.KW_ELSEIF, TokenType.KW_ELSE, TokenType.KW_SHOW, TokenType.KW_SPELLDATABASE,
+                TokenType.KW_MOVE1, TokenType.KW_MOVE2, TokenType.KW_MOVE3, TokenType.KW_MOVE4,
+                TokenType.KW_CONTINUE, TokenType.KW_BREAK,
                 TokenType.KEYWORD, TokenType.IDENTIFIER, TokenType.OP_TRUE, TokenType.OP_FALSE,
                 TokenType.INT_LITERAL, TokenType.STRING_LITERAL,
                 TokenType.OP_ASSIGN, TokenType.OP_EQUALS, TokenType.OP_LESS_THAN, TokenType.OP_GREATER_THAN, TokenType.OP_LESS_THAN_EQUALS, TokenType.OP_GREATER_THAN_EQUALS,
