@@ -1,0 +1,5 @@
+if(!bool) // This is a comment
+{
+int a = 0;
+This should error out;
+}

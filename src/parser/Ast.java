@@ -7,14 +7,14 @@ import java.util.List;
 public abstract class Ast {
     interface Visitor<R> {
         // Program
-        R visitProgramExpr(Program expr);
+        R visitProgram(Program expr);
         // Statement
-        R visitStatementExpr(Statement expr);
-        R visitVariableDeclarationExpr(VariableDeclaration expr);
+        R visitStatement(Statement expr);
+        R visitVariableDeclaration(VariableDeclaration expr);
         R visitAssignment(Assignment expr);
         R visitTypeExpr(Type expr);
         R visitBlockExpr(Block expr);
-        R visitIfStatementExpr(IfStatement expr);
+        R visitIfStatement(IfStatement expr);
         R visitPokemonLoad(PokemonLoad expr);
         R visitMoveStatement(MoveStatement expr);
         R visitWhileStatement(WhileStatement expr);
@@ -26,13 +26,15 @@ public abstract class Ast {
         R visitSpellDatabaseStatement(SpellDatabaseStatement expr);
         R visitShowStatement(ShowStatement expr);
         R visitFunctionDeclaration(FunctionDeclaration expr);
+        R visitExpressionStatement(ExpressionStatement expr);
         // Expression
-        R visitExpressionExpr(Expression expr);
+        R visitExpression(Expression expr);
         R visitBinary(Binary expr);
         R visitUnary(Unary expr);
-        R visitLiteralExpr(Literal expr);
-        R visitIdentifierExpr(Identifier expr);
-        R visitAttributeExpr(Attribute expr);
+        R visitLiteral(Literal expr);
+        R visitIdentifier(Identifier expr);
+        R visitGrouping(Grouping expr);
+        R visitAttribute(Attribute expr);
         R visitCall(Call expr);
     }
     abstract <R> R accept(Visitor<R> visitor);
@@ -49,7 +51,7 @@ public abstract class Ast {
         }
         @Override
         <R> R accept(Visitor<R> visitor) {
-            return visitor.visitProgramExpr(this);
+            return visitor.visitProgram(this);
         }
 
     }
@@ -62,16 +64,16 @@ public abstract class Ast {
 
         @Override
         <R> R accept(Visitor<R> visitor) {
-            return visitor.visitStatementExpr(this);
+            return visitor.visitStatement(this);
         }
     }
 
     static class VariableDeclaration extends Statement {
-        final String type;
-        final String identifier;
+        final Token type;
+        final Token identifier;
         final Expression expression;
 
-        public VariableDeclaration(String type, String identifier, Expression expression){
+        public VariableDeclaration(Token type, Token identifier, Expression expression){
             this.type = type;
             this.identifier = identifier;
             this.expression = expression;
@@ -79,19 +81,19 @@ public abstract class Ast {
 
         @Override
         <R> R accept(Visitor<R> visitor) {
-            return visitor.visitVariableDeclarationExpr(this);
+            return visitor.visitVariableDeclaration(this);
         }
     }
     static class Assignment extends Statement {
-        final String identifier;
-        final String field;
-        final Token operator;
+        final Token identifier;
+        final Token property;
+        final Token field;
         final Expression value;
 
-        public Assignment(String identifier, String field, Token operator, Expression value) {
+        public Assignment(Token identifier, Token property, Token field, Expression value) {
             this.identifier = identifier;
+            this.property = property;
             this.field = field;
-            this.operator = operator;
             this.value = value;
         }
 
@@ -142,17 +144,15 @@ public abstract class Ast {
         }
         @Override
         <R> R accept(Visitor<R> visitor) {
-            return visitor.visitIfStatementExpr(this);
+            return visitor.visitIfStatement(this);
         }
     }
 
     static class PokemonLoad extends Statement {
-        final String identifier;
-        final String pokemonName;
+        final Token path;
 
-        public PokemonLoad(String identifier, String pokemonName) {
-            this.identifier = identifier;
-            this.pokemonName = pokemonName;
+        public PokemonLoad(Token path) {
+            this.path = path;
         }
 
         @Override
@@ -162,11 +162,11 @@ public abstract class Ast {
     }
 
     static class MoveStatement extends Statement {
-        final String pokemonId;
-        final String moveSlot;
-        final String moveName;
+        final Token pokemonId;
+        final Token moveSlot;
+        final Token moveName;
 
-        public MoveStatement(String pokemonId, String moveSlot, String moveName) {
+        public MoveStatement(Token pokemonId, Token moveSlot, Token moveName) {
             this.pokemonId = pokemonId;
             this.moveSlot = moveSlot;
             this.moveName = moveName;
@@ -198,12 +198,14 @@ public abstract class Ast {
         final VariableDeclaration initialize;
         final Expression condition;
         final Token updateVariable;
+        final Token operator;
         final Block body;
 
-        public ForStatement(VariableDeclaration initialize, Expression condition, Token updateVariable, Block body) {
+        public ForStatement(VariableDeclaration initialize, Expression condition, Token updateVariable, Token operator, Block body) {
             this.initialize = initialize;
             this.condition = condition;
             this.updateVariable = updateVariable;
+            this.operator = operator;
             this.body = body;
         }
 
@@ -244,9 +246,9 @@ public abstract class Ast {
     }
 
     static class SpellDatabaseStatement extends Statement {
-        final Literal literal;
+        final Token literal;
 
-        public SpellDatabaseStatement(Literal literal) {
+        public SpellDatabaseStatement(Token literal) {
             this.literal = literal;
         }
 
@@ -255,9 +257,9 @@ public abstract class Ast {
     }
 
     static class ShowStatement extends Statement {
-        final Identifier identifier;
+        final Token identifier;
 
-        public ShowStatement(Identifier identifier) {
+        public ShowStatement(Token identifier) {
             this.identifier = identifier;
         }
 
@@ -268,12 +270,12 @@ public abstract class Ast {
     }
 
     static class FunctionDeclaration extends Statement {
-        final String returnType;
-        final String name;
+        final Token returnType;
+        final Token name;
         final List<Parameter> parameters;
         final Block body;
 
-        public FunctionDeclaration(String returnType, String name, List<Parameter> parameters, Block body){
+        public FunctionDeclaration(Token returnType, Token name, List<Parameter> parameters, Block body){
             this.returnType = returnType;
             this.name = name;
             this.parameters = parameters;
@@ -286,10 +288,21 @@ public abstract class Ast {
         }
     }
 
+    static class ExpressionStatement extends Statement {
+        final Expression expression;
+        public ExpressionStatement(Expression expression) {
+            this.expression = expression;
+        }
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitExpressionStatement(this);
+        }
+    }
+
     static class Parameter {
-        final String type;
-        final String name;
-        public Parameter(String type, String name) {
+        final Token type;
+        final Token name;
+        public Parameter(Token type, Token name) {
             this.type = type;
             this.name = name;
         }
@@ -303,7 +316,7 @@ public abstract class Ast {
 
         @Override
         <R> R accept(Visitor<R> visitor) {
-            return visitor.visitExpressionExpr(this);
+            return visitor.visitExpression(this);
         }
     }
 
@@ -348,7 +361,7 @@ public abstract class Ast {
 
         @Override
         <R> R accept(Visitor<R> visitor) {
-            return visitor.visitLiteralExpr(this);
+            return visitor.visitLiteral(this);
         }
     }
 
@@ -363,7 +376,19 @@ public abstract class Ast {
 
         @Override
         <R> R accept(Visitor<R> visitor) {
-            return visitor.visitIdentifierExpr(this);
+            return visitor.visitIdentifier(this);
+        }
+    }
+
+    static class Grouping extends Expression {
+        public Expression expression;
+
+        public Grouping(Expression expr){
+            this.expression = expression;
+        }
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitGrouping(this);
         }
     }
     static class Attribute extends Expression {
@@ -377,15 +402,15 @@ public abstract class Ast {
 
         @Override
         <R> R accept(Visitor<R> visitor) {
-            return visitor.visitAttributeExpr(this);
+            return visitor.visitAttribute(this);
         }
     }
 
     static class Call extends Expression {
-        final String callee;
+        final Token name;
         final List<Expression> arguments;
-        public Call(String callee, List<Expression> arguments){
-            this.callee = callee;
+        public Call(Token name, List<Expression> arguments){
+            this.name = name;
             this.arguments = arguments;
         }
         @Override

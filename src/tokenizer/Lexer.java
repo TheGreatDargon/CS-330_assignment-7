@@ -9,6 +9,7 @@ public class Lexer {
     private String input;
     private int currentPosition;
     private int number;
+    private int line = 1;
     private String value = "";
     private Object literal = null;
     private TokenType type;
@@ -28,7 +29,16 @@ public class Lexer {
             char currentChar = input.charAt(currentPosition);
 
             if (Character.isWhitespace(currentChar)){
+                if (currentChar == '\n') {
+                    line++;
+                }
                 currentPosition++;
+                continue;
+            }
+            if (currentChar == '/' && currentPosition + 1 < input.length() && input.charAt(currentPosition + 1) == '/') {
+                while (currentPosition < input.length() && input.charAt(currentPosition) != '\n') {
+                    currentPosition++;
+                }
                 continue;
             }
 
@@ -41,14 +51,12 @@ public class Lexer {
             }
         }
 
+        tokens.add(new Token(TokenType.EOF, "EOF", null, ++number, line));
+
         return tokens;
     }
 
     private Token nextToken() {
-
-        if (currentPosition >= input.length()) {
-            return new Token(TokenType.EOF, "EOF", null, ++number);
-        }
 
         String[] tokenPatterns = {
                 // Add the regex rules from token table here
@@ -80,6 +88,8 @@ public class Lexer {
                 "\"[^\"]*\"", // String Literals
                 "=", // Assignment operator
                 "==", // Compare Operator
+                "\\+\\+",
+                "--",
                 "<",  // Less than
                 ">",  // Greater than
                 "<=", // Less than or equal
@@ -106,18 +116,67 @@ public class Lexer {
         };
 
         TokenType[] tokenTypes = {
-                TokenType.KW_POKEMON, TokenType.KW_INT, TokenType.KW_STRING, TokenType.KW_BOOLEAN,
-                TokenType.KW_FOR, TokenType.KW_IF, TokenType.KW_WHILE, TokenType.KW_PRINT, TokenType.KW_RETURN,
-                TokenType.KW_FUNCTION, TokenType.KW_VOID, TokenType.KW_ELSEIF, TokenType.KW_ELSE, TokenType.KW_SHOW, TokenType.KW_SPELLDATABASE,
-                TokenType.KW_MOVE1, TokenType.KW_MOVE2, TokenType.KW_MOVE3, TokenType.KW_MOVE4,
-                TokenType.KW_CONTINUE, TokenType.KW_BREAK,
-                TokenType.KEYWORD, TokenType.IDENTIFIER, TokenType.OP_TRUE, TokenType.OP_FALSE,
-                TokenType.INT_LITERAL, TokenType.STRING_LITERAL,
-                TokenType.OP_ASSIGN, TokenType.OP_EQUALS, TokenType.OP_LESS_THAN, TokenType.OP_GREATER_THAN, TokenType.OP_LESS_THAN_EQUALS, TokenType.OP_GREATER_THAN_EQUALS,
-                TokenType.OP_PLUS_ASSIGN, TokenType.OP_MINUS_ASSIGN, TokenType.OP_PLUS, TokenType.OP_MINUS, TokenType.OP_MULTIPLY, TokenType.OP_DIVIDE, TokenType.OP_AND, TokenType.OP_OR, TokenType.OP_NOT, TokenType.OP_NOTEQUAL,
-                TokenType.LPAREN, TokenType.RPAREN, TokenType.LBRACE, TokenType.RBRACE,
-                TokenType.SEMICOLON, TokenType.COMMA, TokenType.DOT, TokenType.WHITESPACE, TokenType.EOF
+                // Keywords
+                TokenType.KW_POKEMON,               // "Pokemon"
+                TokenType.KW_INT,                   // "int"
+                TokenType.KW_STRING,                // "String"
+                TokenType.KW_BOOLEAN,               // "boolean"
+                TokenType.KW_FUNCTION,              // "function"
+                TokenType.KW_VOID,                  // "void"
+                TokenType.KW_ELSEIF,                // "elseif"
+                TokenType.KW_ELSE,                  // "else"
+                TokenType.KW_SHOW,                  // "show"
+                TokenType.KW_SPELLDATABASE,         // "spelldatabase"
+                TokenType.KW_MOVE1,                 // "move1"
+                TokenType.KW_MOVE2,                 // "move2"
+                TokenType.KW_MOVE3,                 // "move3"
+                TokenType.KW_MOVE4,                 // "move4"
+                TokenType.KW_CONTINUE,              // "continue"
+                TokenType.KW_BREAK,                 // "break"
+                TokenType.KW_RETURN,                // "return"
+                TokenType.KW_PRINT,                 // "print"
+                TokenType.KW_WHILE,                 // "while"
+                TokenType.KW_IF,                    // "if"
+                TokenType.KW_FOR,                   // "for"
+
+                // Literals and Identifiers
+                TokenType.OP_TRUE,                  // "true"
+                TokenType.OP_FALSE,                 // "false"
+                TokenType.IDENTIFIER,               // "[a-zA-Z_]([a-zA-Z_]|[0-9])*"
+                TokenType.INT_LITERAL,              // "0|[1-9][0-9]*"
+                TokenType.STRING_LITERAL,           // "\"[^\"]*\""
+
+                // Operators and Symbols
+                TokenType.OP_ASSIGN,                // "="
+                TokenType.OP_EQUALS,                // "=="
+                TokenType.OP_INCREMENT,             // "++"
+                TokenType.OP_DECREMENT,             // "--"
+                TokenType.OP_LESS_THAN,             // "<"
+                TokenType.OP_GREATER_THAN,          // ">"
+                TokenType.OP_LESS_THAN_EQUALS,      // "<="
+                TokenType.OP_GREATER_THAN_EQUALS,   // ">="
+                TokenType.OP_PLUS_ASSIGN,           // "+="
+                TokenType.OP_MINUS_ASSIGN,          // "-="
+                TokenType.OP_PLUS,                  // "+"
+                TokenType.OP_MINUS,                 // "-"
+                TokenType.OP_MULTIPLY,              // "*"
+                TokenType.OP_DIVIDE,                // "/"
+                TokenType.OP_AND,                   // "&&"
+                TokenType.OP_OR,                    // "||"
+                TokenType.OP_NOT,                   // "!"
+                TokenType.OP_NOTEQUAL,              // "!="
+                TokenType.LPAREN,                   // "("
+                TokenType.RPAREN,                   // ")"
+                TokenType.LBRACE,                   // "{"
+                TokenType.RBRACE,                   // "}"
+                TokenType.SEMICOLON,                // ";"
+                TokenType.COMMA,                    // ","
+                TokenType.DOT,                      // "."
+                TokenType.WHITESPACE,               // Whitespace regex
+                TokenType.EOF                       // "\z"
         };
+
+
 
         do {
             value = "";
@@ -132,13 +191,10 @@ public class Lexer {
                     value = matcher.group();
                 }
             }
-            if (type == TokenType.WHITESPACE) {
-                currentPosition += value.length();
-                return nextToken();
-            }
+
             number++;
             currentPosition += value.length();
-            return new Token(type, value, null, number);
+            return new Token(type, value, null, number, line);
 
         } while (true);
     }

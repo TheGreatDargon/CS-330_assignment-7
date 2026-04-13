@@ -1,6 +1,6 @@
 package mainapp;
 
-import parser.AstPrinter;
+//import parser.AstPrinter;
 import parser.Ast;
 import parser.Parser;
 import tokenizer.Lexer;
@@ -39,20 +39,20 @@ public class Main {
         Lexer lexer = new Lexer(code.toString());
         List<Token> tokens = lexer.tokenize();
 
-        //printTokens(tokens);
+        printTokens(tokens);
 
         Parser parser = new Parser(tokens);
         Ast expression = parser.parse();
 
         if(hadError) return;
 
-        System.out.println(new AstPrinter().print(expression));
+        //System.out.println(new AstPrinter().print(expression));
 
     }
 
     private static void report(int line, String where, String message) {
-        System.err.println("[line " + line + "] Error" + where + ": " + message);
-        hadError = true; // You'll need this boolean at the top of your class
+        System.err.println("Line: " + line +  " Error" + where + ": " + message);
+        hadError = true;
     }
 
     public static void error(Token token, String message) {

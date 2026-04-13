@@ -1,7 +1,8 @@
 package parser;
 import tokenizer.Token;
 import tokenizer.TokenType;
-public class AstPrinter implements Ast.Visitor<String> {
+//public class AstPrinter implements Ast.Visitor<String> {
+    /*
     public String print(Ast ast) {
         return ast.accept(this);
     }
@@ -61,4 +62,5 @@ public class AstPrinter implements Ast.Visitor<String> {
 
         System.out.println(new AstPrinter().print(expression));
     }
-}
+     */
+//}
