@@ -2,6 +2,7 @@ package mainapp;
 
 //import parser.AstPrinter;
 import parser.Ast;
+import parser.AstPrinter;
 import parser.Parser;
 import tokenizer.Lexer;
 import tokenizer.Token;
@@ -39,14 +40,14 @@ public class Main {
         Lexer lexer = new Lexer(code.toString());
         List<Token> tokens = lexer.tokenize();
 
-        printTokens(tokens);
+        //printTokens(tokens);
 
         Parser parser = new Parser(tokens);
-        Ast expression = parser.parse();
+        Ast ast = parser.parse();
 
         if(hadError) return;
 
-        //System.out.println(new AstPrinter().print(expression));
+        System.out.println(new AstPrinter().print(ast));
 
     }
 

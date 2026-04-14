@@ -60,29 +60,29 @@ public class Lexer {
 
         String[] tokenPatterns = {
                 // Add the regex rules from token table here
-                "Pokemon", // Pokemon Keyword
-                "int", // int keyword
-                "String", // String keyword
-                "boolean", // boolean keyword
-                "function",
-                "void",
-                "elseif",
-                "else",
-                "show",
-                "spelldatabase",
-                "move1",
-                "move2",
-                "move3",
-                "move4",
-                "continue",
-                "break",
-                "return",
-                "print",
-                "while",
-                "if",
-                "for",
-                "true",
-                "false",
+                "Pokemon\\b", // Pokemon Keyword
+                "int\\b", // int keyword
+                "String\\b", // String keyword
+                "boolean\\b", // boolean keyword
+                "function\\b",
+                "void\\b",
+                "elseif\\b",
+                "else\\b",
+                "show\\b",
+                "spelldatabase\\b",
+                "move1\\b",
+                "move2\\b",
+                "move3\\b",
+                "move4\\b",
+                "continue\\b",
+                "break\\b",
+                "return\\b",
+                "print\\b",
+                "while\\b",
+                "if\\b",
+                "for\\b",
+                "true\\b",
+                "false\\b",
                 "[a-zA-Z_]([a-zA-Z_]|[0-9])*", // Identifiers
                 "0|[1-9][0-9]*", // Int Literal
                 "\"[^\"]*\"", // String Literals
@@ -194,6 +194,9 @@ public class Lexer {
 
             number++;
             currentPosition += value.length();
+            if (value.isEmpty()) {
+                throw new RuntimeException("Lexer Error: Unexpected character '" + input.charAt(currentPosition) + "' at line " + line);
+            }
             return new Token(type, value, null, number, line);
 
         } while (true);

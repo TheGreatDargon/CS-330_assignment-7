@@ -383,9 +383,7 @@ public abstract class Ast {
     static class Grouping extends Expression {
         public Expression expression;
 
-        public Grouping(Expression expr){
-            this.expression = expression;
-        }
+        public Grouping(Expression expr){this.expression = expr;}
         @Override
         <R> R accept(Visitor<R> visitor) {
             return visitor.visitGrouping(this);

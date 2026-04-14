@@ -251,6 +251,13 @@ public class Parser {
         }
     }
 
+    private Expression grouping() {
+        consume(TokenType.LPAREN, "Expect '(' before expression.");
+        Expression expr = expression();
+        consume(TokenType.RPAREN, "Expect ')' after expression.");
+        return new Grouping(expr);
+    }
+
     private Block block() {
         consume(TokenType.LBRACE, "Expected '{' at start of block");
         List<Statement> statementList = new ArrayList<>();
