@@ -1,13 +1,12 @@
 package mainapp;
 
-//import parser.AstPrinter;
 import parser.Ast;
 import parser.AstPrinter;
 import parser.Parser;
+import parser.ScopeVisitor;
 import tokenizer.Lexer;
 import tokenizer.Token;
 import tokenizer.TokenType;
-
 
 import java.io.FileNotFoundException;
 import java.util.List;
@@ -16,6 +15,7 @@ import java.io.File;
 
 public class Main {
     static boolean hadError = false;
+    static boolean hadRuntimeError = false;
 
     public static void main(String[] args) {
 
@@ -46,8 +46,21 @@ public class Main {
         Ast ast = parser.parse();
 
         if(hadError) return;
+        if (hadRuntimeError) System.exit(70);
 
         System.out.println(new AstPrinter().print(ast));
+
+        ScopeVisitor scopeVisitor = new ScopeVisitor();
+
+        try {
+            scopeVisitor.visit(ast);
+            System.out.println("Semantic analysis successful.");
+
+
+        } catch (RuntimeException e) {
+            System.err.println(" Scope Error: " + e.getMessage());
+            hadError = true;
+        }
 
     }
 

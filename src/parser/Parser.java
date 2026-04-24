@@ -4,6 +4,7 @@ import tokenizer.Token;
 import tokenizer.TokenType;
 import mainapp.Main;
 import parser.Ast.*;
+import parser.ASTNode.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +31,7 @@ public class Parser {
             statementList.add(statement());
         }
 
-        return new Ast.Program(statementList);
+        return new Program(statementList);
     }
 
     private Statement statement() {
@@ -330,7 +331,7 @@ public class Parser {
         while (match(TokenType.OP_MINUS, TokenType.OP_PLUS)) {
             Token operator = previous();
             Expression right = factor();
-            ast = new Ast.Binary(ast, operator, right);
+            ast = new Binary(ast, operator, right);
         }
 
         return ast;
@@ -341,7 +342,7 @@ public class Parser {
         while (match(TokenType.OP_DIVIDE, TokenType.OP_MULTIPLY)) {
             Token operator = previous();
             Expression right = unary();
-            ast = new Ast.Binary(ast, operator, right);
+            ast = new Binary(ast, operator, right);
         }
 
         return ast;
@@ -350,7 +351,7 @@ public class Parser {
         if (match(TokenType.OP_NOT, TokenType.OP_PLUS, TokenType.OP_MINUS)) {
             Token operator = previous();
             Expression right = unary();
-            return new Ast.Unary(operator, right);
+            return new Unary(operator, right);
         }
 
         return primary();
